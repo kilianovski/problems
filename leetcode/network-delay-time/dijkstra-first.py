@@ -1,19 +1,27 @@
 class Solution:
     def networkDelayTime(self, times, N: int, K: int) -> int:
         distances = {}
-        pathes = {}
         visited = set()
         
         distances[K] = 0
-        pathes[K] = []
         
+        graph = {}
+
         for (u, v, w) in times:
+            vertex = (v, w)
+            if u in graph:
+                graph[u].append(vertex)
+            else:
+                graph[u] = [vertex]
+
             if u != K:
                 distances[u] = None
             if v != K:
                 distances[v] = None
+
         if len(distances) < N:
             return -1 
+
         def isGreaterDist(a, b):
             if a == None and b == None:
                 return False
@@ -30,28 +38,29 @@ class Solution:
                 return None
             return a + b
         
-        i = 0
         while len(visited) != len(distances) - 1:
             
             v = None
             dist_to_v = None
             for v_candidate in distances:
-     
-                if isGreaterDist(dist_to_v, distances[v_candidate]) and v_candidate not in visited:
-                    dist_to_v = distances[v_candidate]
+                
+                dist_candidate = distances[v_candidate]
+                if isGreaterDist(dist_to_v, dist_candidate) and v_candidate not in visited:
+                    dist_to_v = dist_candidate
                     v = v_candidate
-                    
-            for (a, b, w) in times:
+            
+            visited.add(v)
+            if v not in graph:
+                continue
 
-                if b != v and a == v and b not in visited:
-                    u = b
-                else:
-                    continue
+            neighbors = graph[v]
+
+            for (neighbor, w) in neighbors:
+                if neighbor not in visited:
+                        if isGreaterDist(distances[neighbor], addDistance(distances[v], w)):
+                            distances[neighbor] = addDistance(distances[v], w)
+
                 
-                if isGreaterDist(distances[u], addDistance(distances[v], w)):
-                    distances[u] = addDistance(distances[v], w)
-                
-            i += 1
             visited.add(v)
             
 
